@@ -1,0 +1,39 @@
+{
+  "defaultTarget": "miditacion",
+
+  "properties": {
+    "docsDir": "docs",
+    "vendorDir": "vendor",
+    "binDir": "bin",
+    "closure-compiler-jar": "${vendorDir}/google-closure-compiler/compiler.jar"
+  },
+
+  "resources": {
+    "Breader": {
+      "type": "package",
+      "location": "git",
+      "url": "git://github.com/Moncader/Breader.git",
+      "targets": ["all"]
+    }
+  },
+
+  "targets": {
+    "miditacion": {
+      "builder": "closure-compiler",
+      "compilationLevel": "WHITESPACE_ONLY",
+      "outputs": "${binDir}/miditacion.js",
+      "resources": [
+        {
+          "type": "reference",
+          "name": "Breader"
+        },
+
+        {
+          "type": "files",
+          "root": "src",
+          "include": "^.+\\.js$"
+        }
+      ]
+    }
+  }
+}

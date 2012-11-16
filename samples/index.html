@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>OscillatorNode Test</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <script src="../bin/miditacion.js"></script>
+    <script>
+      function getData() {
+        var tXhr = new XMLHttpRequest();
+        tXhr.addEventListener('load', function(e) {
+            try {
+              var json = JSON.parse(tXhr.responseText);
+            } catch (e) {
+              console.error('JSON.parse failed: ', e);
+              return;
+            }
+            scheduleAndPlay(json);
+          }, false);
+        tXhr.addEventListener('error', function(e) {
+          console.error('Ajax failed: ', e);
+        }, false);
+        tXhr.open('GET', 'song.json', true);
+        tXhr.overrideMimeType('application/json');
+        tXhr.send(null);
+      }
+
+      function scheduleAndPlay(pObj) {
+        var tContext = new webkitAudioContext();
+        var tHeader = pObj.header, tTracks = pObj.track;
+        for (var i = 0; i < tHeader.trackNum; i++) {
+          var tTrack = tTracks[i], tNotes = tTrack.midi;
+          var tScheduler = new TrackScheduler(tContext, tHeader.resolution, tTrack.meta.tempo);
+          for (var j = 0, jl = tNotes.length; j < jl; j++) {
+            var tNote = tNotes[j];
+            if (tNote.event === 'on') {
+              tScheduler.scheduleNoteOn(tNote.delta, tNote.ch, tNote.note, tNote.velo);
+            } else if (tNote.event === 'off') {
+              tScheduler.scheduleNoteOff(tNote.delta, tNote.ch, tNote.note, tNote.velo);
+            }
+          }
+          tScheduler.scheduleDone();
+          tScheduler.play();
+        }
+      }
+
+    </script>
+  </head>
+  <body>
+    <div id="options">
+      <input type="submit" onclick="getData()" value="Play" />
+    </div>
+  </body>
+</html>
